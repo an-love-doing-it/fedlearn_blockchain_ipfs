@@ -1,0 +1,7 @@
+_file_c_
+.env
+project\testing\.env
+.vscode
+run.sh
+project\testing\current_weight\model_weight.pth
+project\testing\current_weight\model.pth
