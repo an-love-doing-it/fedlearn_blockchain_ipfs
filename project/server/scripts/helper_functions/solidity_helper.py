@@ -47,9 +47,13 @@ def transact(w3: Web3, function_call, private_key):
     return receipt
 
 
-def get_latest_weight(contract):
-    return contract.functions.get_latest_model_weight().call()
+def get_latest_model(contract):
+    return contract.functions.get_latest_model_ipfs().call()
 
 
-def get_model(contract):
-    return contract.functions.get_model().call()
+# def get_loss_fn(contract):
+#     return contract.functions.get_loss_function().call()
+
+
+# def get_optimizer(contract):
+#     return contract.functions.get_optimizer().call()

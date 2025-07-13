@@ -7,23 +7,39 @@ import torch.nn as nn
 class Model(nn.Module):
     def __init__(self):
         super().__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28 * 28, 512),
+        
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10),
+            nn.MaxPool2d(kernel_size=2, stride=2)
         )
-
+        
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+        
+        self.fc1 = nn.Linear(in_features=64*6*6, out_features=600)
+        self.drop = nn.Dropout2d(0.25)
+        self.fc2 = nn.Linear(in_features=600, out_features=120)
+        self.fc3 = nn.Linear(in_features=120, out_features=10)
+        
     def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = out.view(out.size(0), -1)
+        out = self.fc1(out)
+        out = self.drop(out)
+        out = self.fc2(out)
+        out = self.fc3(out)
+        
+        return out
 
 
-def get_loss_function_optimizer(model: Model) -> dict[str, Any]:
-    return {
-        "loss_fn": torch.nn.CrossEntropyLoss(),
-        "optimizer": torch.optim.Adam(model.parameters()),
-    }
+def get_loss(): return nn.CrossEntropyLoss()
+
+
+def get_optim(model, lr=0.01): return torch.optim.Adam(model.parameters(), lr)

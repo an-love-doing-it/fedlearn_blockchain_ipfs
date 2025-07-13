@@ -2,36 +2,43 @@
 pragma solidity >=0.8.7;
 
 contract ModelStorage {
-    string base_model_structure;
+    // string loss_fn;
+    // string optimizer;
+
 
     struct Model {
-        string ipfs_model;
-        string accuracy;
+        string model_ipfs;
+        uint256 accuracy;
         address author;
     }
 
+
     Model[] models;
 
+
     constructor(
-        string memory ipfs_struct,
-        string memory ipfs_weight,
-        string memory accuracy_
+        string memory model_init_ipfs,
+        // string memory loss_fn_,
+        // string memory optimizer_,
+        uint256 model_init_accuracy
     ) {
-        base_model_structure = ipfs_struct;
+        // loss_fn = loss_fn_;
+        // optimizer = optimizer_;
         Model memory tmp = Model({
-            ipfs_model: ipfs_weight,
-            accuracy: accuracy_,
+            model_ipfs: model_init_ipfs,
+            accuracy: model_init_accuracy,
             author: msg.sender
         });
         models.push(tmp);
     }
 
+
     function submit_model_weight(
-        string memory ipfs_,
-        string memory accuracy_
+        string memory current_model,
+        uint256 accuracy_
     ) public {
         Model memory submit_ = Model({
-            ipfs_model: ipfs_,
+            model_ipfs: current_model,
             accuracy: accuracy_,
             author: msg.sender
         });
@@ -39,17 +46,25 @@ contract ModelStorage {
         models.push(submit_);
     }
 
-    function get_model_ipfs() public view returns (string memory) {
-        return base_model_structure;
-    }
 
-    function get_latest_model_weight_ipfs()
+    // function get_loss_function() public view returns (string memory) {
+    //     return loss_fn;
+    // }
+
+
+    // function get_optimizer() public view returns (string memory) {
+    //     return optimizer;
+    // }
+
+
+    function get_latest_model_ipfs()
         public
         view
         returns (string memory)
     {
-        return models[models.length - 1].ipfs_model;
+        return models[models.length - 1].model_ipfs;
     }
+
 
     function get_all_round() public view returns (Model[] memory) {
         return models;

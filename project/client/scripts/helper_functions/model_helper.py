@@ -6,11 +6,8 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 import ipfs_api
 
-from helper_functions.solidity_helper import get_latest_weight, get_model
-from model.model import (
-    Model, 
-    get_loss_function_optimizer as get_loss_op
-)
+from helper_functions.solidity_helper import get_latest_model
+from model.model import Model, get_loss, get_optim
 
 
 def get_train_data(batch_size: int = 64) -> DataLoader:
@@ -33,80 +30,85 @@ def get_test_data(batch_size: int = 64) -> DataLoader:
     return test_dataloader
 
 
-def train(model: Model, data: DataLoader, 
+def train(model: Model, device, data: DataLoader,  optimizer, *, loss_fn = get_loss(),
         epochs: int = 5, debug: bool = False) -> None:
     model.train()
-    loss_fn, optimizer = get_loss_op(model).values()
-    batch_size = data.batch_size
-    
     for epoch in range(epochs):
-        if debug is True: print(f"Batch #{epoch + 1}")
+        if debug is True: 
+            print(f"Epoch #{epoch + 1}")
+            total = len(data.dataset)
         
-        for batch, (X, y) in enumerate(data):
-            pred = model(X)
-            loss = loss_fn(pred, y)
+        for batch, (inputs, labels) in enumerate(data):
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = loss_fn(outputs, labels)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             
             if debug is True:
-                print(f"\rProgress: {(int)((batch+1) / batch_size):02}", end="")
+                print(f"\rProgress: {batch*data.batch_size + len(labels)}/{total} Loss: {loss}", end="")
+        if debug is True:
+            print()
+            print(f"{test(model, device, get_test_data())*100}%")
 
 
-def test(model: Model, data: DataLoader) -> float:
+def test(model: Model, device, data: DataLoader, loss_fn=get_loss()) -> float:
     model.eval()
-    loss_fn = get_loss_op(model)["loss_fn"]
+    total = 0
+    correct = 0
     with torch.no_grad():
-        for X, y in data:
-            pred = model(X)
-            loss = loss_fn(pred, y) 
-            correct = (pred.argmax(1) == y).sum().item()
-
-    return correct / len(data.dataset)
-
-
-def save_struct(model: Model) -> str:
-    if not os.path.exists(".\\current_weight\\model.pth"):
-        torch.save(model, ".\\current_weight\\model.pth")
-
-    return ipfs_api.publish(".\\current_weight\\model.pth")
+        for inputs, labels in data:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            _, predictions = torch.max(outputs, 1)
+            correct += (predictions == labels).sum().item()
+            total += len(labels)
+    return correct / total
 
 
-def save_weight(model) -> str:
-    if not os.path.exists(".\\current_weight\\model_weight.pth"):
-        torch.save(model.state_dict(), ".\\current_weight\\model_weight.pth")
+def save_checkpoint(model: Model, optimizer, filename) -> str:
+    save_path = f".\\current_weight\\{filename}"
+    torch.save({
+        "model_state": model.state_dict(),
+        "optimizer_state": optimizer.state_dict()
+    }, save_path)
 
-    return ipfs_api.publish(".\\current_weight\\model_weight.pth")
-
-
-def load_struct(contract):
-    if not os.path.exists(".\\current_weight\\model.pth"):
-        ipfs_api.download(get_model(contract), ".\\current_weight\\model.pth")
-
-    model = torch.load(".\\current_weight\\model.pth", weights_only=False)
-    return model
+    return ipfs_api.publish(save_path)
 
 
-def load_weight(contract):
-    model = load_struct(contract)
+def save_checkpoint(model: Model, optimizer, filename) -> str:
+    save_path = f".\\current_weight\\{filename}"
+    torch.save({
+        "model_state": model.state_dict(),
+        "optimizer_state": optimizer.state_dict()
+    }, save_path)
 
+    return ipfs_api.publish(save_path)
+
+
+def load_checkpoint(contract, filename):
+    load_path = f".\\current_weight\\{filename}"
     ipfs_api.download(
-        get_latest_weight(contract), ".\\current_weight\\model_weight.pth"
-    )
+        get_latest_model(contract), 
+        load_path
+        )
 
-    model.load_state_dict(
-        torch.load(".\\current_weight\\model_weight.pth", weights_only=True)
-    )
-    return model
+    checkpoint = torch.load(load_path)
+    model = Model()
+    model.load_state_dict(checkpoint.get("model_state"))
+    optimizer = get_optim(model)
+    optimizer.load_state_dict(checkpoint["optimizer_state"])
+    return model, optimizer
 
 
-def execute_round(contract, epochs=5):
-    model = load_weight(contract)
+def load_and_train(contract, filename, device, *, epochs=5, debug=False):
+    model, optimizer = load_checkpoint(contract, filename)
     train_data = get_train_data()
-    train(model, train_data, epochs=epochs, debug=True)
+    train(model, device, train_data, optimizer, epochs=epochs, debug=debug)
 
-    precision = test(model, get_test_data())
+    precision = test(model, device, get_test_data())
 
     print(f"ACCURACY : {precision*100:03.5f}%")
 
-    return model, precision
+    return model, optimizer, precision
