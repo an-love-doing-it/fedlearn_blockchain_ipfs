@@ -2,5 +2,4 @@ _file_c_
 .env
 project\testing\.env
 .vscode
-project\testing\current_weight\model_weight.pth
-project\testing\current_weight\model.pth
+project\client\access.json
