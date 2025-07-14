@@ -3,3 +3,4 @@ _file_c_
 project\testing\.env
 .vscode
 project\client\access.json
+run.sh
