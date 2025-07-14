@@ -26,7 +26,7 @@ abi, bin = get_abi_bin(compiled_contract)
 
 # setup blockchain node endpoint
 endpoint = HTTPProvider(
-    "HTTP://127.0.0.1:7545"
+    "HTTP://127.0.0.1:7545" #Ganache
     )
 w3_owner = Web3(endpoint)
 if not w3_owner.is_connected():
@@ -62,3 +62,4 @@ contract_access = {
 # send access to zones
 with open("..\\client\\access.json", "w") as f:
     json.dump(contract_access, f)
+

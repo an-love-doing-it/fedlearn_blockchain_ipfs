@@ -2,9 +2,6 @@
 pragma solidity >=0.8.7;
 
 contract ModelStorage {
-    // string loss_fn;
-    // string optimizer;
-
 
     struct Model {
         string model_ipfs;
@@ -18,12 +15,8 @@ contract ModelStorage {
 
     constructor(
         string memory model_init_ipfs,
-        // string memory loss_fn_,
-        // string memory optimizer_,
         uint256 model_init_accuracy
     ) {
-        // loss_fn = loss_fn_;
-        // optimizer = optimizer_;
         Model memory tmp = Model({
             model_ipfs: model_init_ipfs,
             accuracy: model_init_accuracy,
@@ -45,16 +38,6 @@ contract ModelStorage {
 
         models.push(submit_);
     }
-
-
-    // function get_loss_function() public view returns (string memory) {
-    //     return loss_fn;
-    // }
-
-
-    // function get_optimizer() public view returns (string memory) {
-    //     return optimizer;
-    // }
 
 
     function get_latest_model_ipfs()
