@@ -30,14 +30,14 @@ with open(access_path, "r") as f:
     
 # setup blockchain node endpoint
 endpoint = HTTPProvider(
-    "HTTP://127.0.0.1:7545"
+    "YOUR_NODE_PROVIDER"
     )
 w3_worker = Web3(endpoint)
 if not w3_worker.is_connected():
     raise Exception("Web3 is not connected.")
 
 # setup account
-private_key_worker = "0x80e4edfa096be6bfd55e3ccecc29453580b8452539a8828778b252fe2e033ef1"
+private_key_worker = "YOUR_PRIVATE_KEY"
 
 # create a contract
 contract_object = w3_worker.eth.contract(address=address, abi=abi)

@@ -26,14 +26,14 @@ abi, bin = get_abi_bin(compiled_contract)
 
 # setup blockchain node endpoint
 endpoint = HTTPProvider(
-    "HTTP://127.0.0.1:7545"
+    "YOUR_NODE_PROVIDER"
     )
 w3_owner = Web3(endpoint)
 if not w3_owner.is_connected():
     raise Exception("Web3 is not connected.")
 
 # setup account
-private_key_owner = "0x6dbe56697723eaf06fe424add5d96d0ed67523d9c55b2ffe63181c57bbca7857"
+private_key_owner = "YOUR_PRIVATE_KEY"
 
 # (setup constructor's arguments)
 model = Model()
