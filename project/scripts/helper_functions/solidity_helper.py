@@ -16,7 +16,9 @@ def compile_sol(filename: str, sol_ver_str: str) -> str:
     """
     install_solc(sol_ver_str)
     
-    sol_file_path = os.path.join("solidity_files", filename)
+    sol_file_path = os.path.join(
+        "application", "server", "solidity_files", filename
+        )
     compiled_contract = compile_files(
         source_files=sol_file_path,
         output_values=["abi", "bin"],
@@ -34,7 +36,9 @@ def get_abi_bin(filename: str):
     """
     Return the contract's abi and binary code.
     """
-    abi_bin_path = os.path.join("solidity_files", filename)
+    abi_bin_path = os.path.join(
+        "application", "server", "solidity_files", filename
+        )
     with open(abi_bin_path, "r") as f:
         compiled = list(json.load(f).values())[0]
         abi, bin = compiled.get("abi"), compiled.get("bin")

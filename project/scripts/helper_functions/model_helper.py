@@ -4,8 +4,8 @@ import torch
 from torch.utils.data import DataLoader
 import ipfs_api
 
-from helper_functions.solidity_helper import get_latest_model
-from model.model import (
+from scripts.helper_functions.solidity_helper import get_latest_model
+from scripts.model.model import (
     Model, get_loss, get_optim, 
     get_test_data, get_train_data
     )
@@ -41,8 +41,8 @@ def train(
             if debug is True:
                 print(f"\rProgress: {batch*train_data.batch_size + len(labels)}/{total} Loss: {loss}", end="")
         if debug is True:
-            print()
-            print(f"{test(model, device, get_test_data())*100}%")
+            precision = test(model, get_test_data(), device=device)
+            print(f"\n{precision:2.5%}")
 
 
 def test(
@@ -78,7 +78,7 @@ def save_checkpoint(
     Save the model's and optimizer's state_dict to a file,
     push it to IPFS and return its CID.
     """
-    save_path = os.path.join(".", "current_weight", filename)
+    save_path = os.path.join("current_weight", filename)
     torch.save({
         "model_state": model.state_dict(),
         "optimizer_state": optimizer.state_dict()
@@ -91,7 +91,7 @@ def load_checkpoint(contract, *, filename="last_checkpoint.pth"):
     """
     Save the last model uploaded to blockchain through IPFS to local end device
     """
-    load_path = os.path.join(".", "current_weight", filename)
+    load_path = os.path.join("current_weight", filename)
     ipfs_api.download(
         get_latest_model(contract), 
         load_path
@@ -111,14 +111,15 @@ def load_and_train(contract, filename, device, *, epochs=5, debug=False):
     Load the model and optimizer from last check point and train it,
     return the new model and optimizer, the model's accuracy
     """
-    model, optimizer = load_checkpoint(contract, filename)
+    model, optimizer = load_checkpoint(contract, filename=filename)
     train_data = get_train_data()
     train(
-        model, get_train_data(), device=device, optimizer=optimizer,
+        model, get_train_data(), 
+        device=device, optimizer=optimizer,
         epochs=epochs, debug=debug
         )
     
-    precision = test(model, device, get_test_data())
+    precision = test(model, get_test_data(), device=device)
     if debug is True:
         print(f"ACCURACY : {precision:03.5%}")
     

@@ -52,7 +52,7 @@ def get_optim(model: Model, *, lr=0.001):
 
 def get_train_data(*, batch_size: int = 64) -> DataLoader:
     training_data = datasets.FashionMNIST(
-        root=".\\data", train=True, download=True, transform=ToTensor()
+        root="data", train=True, download=True, transform=ToTensor()
     )
     train_dataloader = DataLoader(
         training_data, batch_size=batch_size, shuffle=True
@@ -62,7 +62,7 @@ def get_train_data(*, batch_size: int = 64) -> DataLoader:
 
 def get_test_data(*, batch_size: int = 64) -> DataLoader:
     test_data = datasets.FashionMNIST(
-        root=".\\data", train=False, download=True, transform=ToTensor()
+        root="data", train=False, download=True, transform=ToTensor()
     )
     test_dataloader = DataLoader(
         test_data, batch_size=batch_size, shuffle=True

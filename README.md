@@ -1,16 +1,10 @@
-Python version 3.13.3
+###Python ver 3.13.3
 
-1. create virtual environment : venv, conda ...
-   python -m venv [virtual env name]
+To use this repo:
 
-2. install packages in requirements.txt
-   pip install -r requirements.txt
-
-3. clone git in a seperate folder from the virtual environment's
-   git clone
-
-4. run the test.py file
-   .\.env\Scripts\activate
-   python project\testing\scripts\test.py
-
-the data used is FashionMNIST
+- create a virtual environment
+- download/clone this repo to a another folder same level to the virtual env
+- make sure the folder directly contain run.sh file
+- install the requirements.txt
+- change your model, and other utils through the model.py file in scripts/model
+- run the script through run.sh file
