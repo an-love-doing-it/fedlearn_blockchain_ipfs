@@ -1,11 +1,3 @@
 .env
-project\.env
-project\application\client\access.json
-project\__pycache__
-project\application\client\__pycache__
-project\application\server\__pycache__
-project\scripts\__pycache__
-project\scripts\helper_functions\__pycache__
-project\scripts\model\__pycache__
-project\application\server\solidity_files\ModelStorage.json
-project\application\server\solidity_files\ModelStorage.sol
+__pycache__
+run.sh
